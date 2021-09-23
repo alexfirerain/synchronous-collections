@@ -1,15 +1,25 @@
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Main {
-    public static final int NUMBER_OF_CALLS = 7;
+    public static final int NUMBER_OF_CALLS = 15;
+    public static final int NUMBER_OF_OPERATORS = 3;
+
+    public static void main(String[] args) {
+        consoleReport();
+        CallCenter callCenter = new CallCenter(NUMBER_OF_OPERATORS);
+        callCenter.demo(NUMBER_OF_CALLS);
+    }
 
     static void timePass(int meanValue, double qFactor) {
-        if (qFactor < 1)
-            qFactor = 1 / qFactor;
+        if (qFactor <= 0 || qFactor > meanValue) throw new IllegalArgumentException();
+        if (qFactor < 1) qFactor = 1 / qFactor;
         double minValue = meanValue / qFactor;
         double maxValue = meanValue * qFactor;
         double scaleValue = Math.random();
         double actualValue = scaleValue < 0.5 ?
-                minValue + scaleValue * (meanValue - minValue) :
-                meanValue + (scaleValue - 0.5) * (maxValue - meanValue);
+                minValue + scaleValue * 2 * (meanValue - minValue) :
+                meanValue + (scaleValue - 0.5) * 2 * (maxValue - meanValue);
         try {
             Thread.sleep((long) actualValue);
         } catch (InterruptedException e) {
@@ -17,11 +27,17 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) {
-        CallCenter callCenter = new CallCenter(3);
-        callCenter.demo(NUMBER_OF_CALLS);
-//        TelephoneExchangeSimulator ats = new TelephoneExchangeSimulator(60);
-//        callCenter.operateCallsOn(ats);
+    static void consoleReport() {
+        System.out.println( """
+                ================
+                мм:сс - событие
+                ================""" );
+    }
+
+    static void consoleReport(String msg) {
+        System.out.println(
+                new SimpleDateFormat("mm:ss - ").format(new Date()) + msg
+        );
     }
 
 }

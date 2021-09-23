@@ -3,22 +3,22 @@ import java.util.Date;
 import java.util.Objects;
 
 public class Call {
-    private final TelephoneExchangeSimulator source;
+//    private final TelephoneExchangeSimulator source;
     private final Date callDate;
 
-    public Call(TelephoneExchangeSimulator source) {
-        this.source = source;
+    public Call() {
+//        this.source = source;
         callDate = new Date();
     }
 
     @Override
     public String toString() {
-        return "Звонок АТС-%d (%s)".formatted(hashCode(),
-                new SimpleDateFormat("dd MMM HH:mm:ss").format(callDate));
+        return "звонок АТС-%d от %s".formatted(hashCode(),
+                new SimpleDateFormat("mm:ss").format(callDate));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(source, callDate);
+        return Objects.hash(callDate);
     }
 }

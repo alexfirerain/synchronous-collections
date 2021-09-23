@@ -1,4 +1,9 @@
 public class Operator implements Runnable {
+    public static final int MEAN_REST = 900;
+    public static final double Q_FACTOR_FOR_REST = 1.5;
+    public static final int MEAN_TALK = 3000;
+    public static final double Q_FACTOR_FOR_TALK = 4;
+
     private final CallCenter office;
     private final String name;
 
@@ -9,29 +14,37 @@ public class Operator implements Runnable {
 
     @Override
     public void run() {
-        System.out.println(name + " вышел на работу");
+        office.operatorsOnline.incrementAndGet();
+        Main.consoleReport(this + " вышел на работу");
         while (true) {
             rest();
-            System.out.println(name + " на линии");
-            if (!office.callQueue.isEmpty()) {
-                System.out.println("Звонков в очереди: " + office.callQueue.size());
-                Call call = office.callQueue.poll();
+            Call call = office.callQueue.poll();
+            if (call != null) {
                 processACall(call);
             } else if (office.lineOff()) {
+                office.operatorsOnline.decrementAndGet();
                 break;
             }
         }
-        System.out.println(name + " закончил работу");
+        Main.consoleReport(this + " закончил работу");
+        if (office.operatorsOnline.get() == 0) {
+            Main.consoleReport("Последний закрывает офис");
+            office.threads.shutdownNow();
+        }
     }
 
     private void rest() {
-        Main.timePass(900, 1.5);
+        Main.timePass(MEAN_REST, Q_FACTOR_FOR_REST);
     }
 
     private void processACall(Call request) {
-        System.out.println(name + " взял " + request);
-        Main.timePass(3000, 4);
-        System.out.println(name + " завершил " + request);
+        int leftInQueue = office.callQueue.size();
+        Main.consoleReport(name + " принимает " + request + (
+                leftInQueue > 0 ?
+                " (ещё в очереди: " + leftInQueue + ")" :
+                ""));
+        Main.timePass(MEAN_TALK, Q_FACTOR_FOR_TALK);
+        Main.consoleReport(name + " завершает " + request);
     }
 
     @Override

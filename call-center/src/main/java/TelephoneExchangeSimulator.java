@@ -20,16 +20,15 @@ public class TelephoneExchangeSimulator implements Runnable {
             System.out.println("АТС: не определён получатель звонков!");
             return;
         }
-        isOn = true;
         int calls = 0;
         while (calls < CALLS_TO_IMITATE) {
             Main.timePass(MEAN_CALL_INTERVAL, Q_FACTOR_FOR_CALL_INTERVALS);
-            System.out.println("АТС: имитирую звонок");
-            target.callQueue.add(new Call(this));
+            Call call = new Call();
+            Main.consoleReport("АТС: имитирую " + call);
+            target.callQueue.add(call);
             calls++;
-            System.out.println(target.callQueue);
         }
-        System.out.println("АТС имитировала " + calls + " звонков и выключается.");
+        Main.consoleReport("АТС имитировала " + calls + " звонков и выключается.");
         isOn = false;
     }
 
