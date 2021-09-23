@@ -1,3 +1,4 @@
 rootProject.name = 'synchronous-collections'
 include 'call-center'
+include 'maps-comparative-test'
 

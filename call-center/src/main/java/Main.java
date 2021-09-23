@@ -1,14 +1,22 @@
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 public class Main {
     public static final int NUMBER_OF_CALLS = 15;
     public static final int NUMBER_OF_OPERATORS = 3;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         consoleReport();
         CallCenter callCenter = new CallCenter(NUMBER_OF_OPERATORS);
         callCenter.demo(NUMBER_OF_CALLS);
+        while (true)
+            if (!callCenter.running())
+                break;
+        consoleReport(callCenter.threads.awaitTermination(5, SECONDS) ?
+                "Дождались завершения" : "Остановили по таймауту");
+        consoleReport("Центр Звонков завершил демонстрацию.");
     }
 
     static void timePass(int meanValue, double qFactor) {

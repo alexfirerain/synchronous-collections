@@ -23,6 +23,7 @@ public class Operator implements Runnable {
                 processACall(call);
             } else if (office.lineOff()) {
                 office.operatorsOnline.decrementAndGet();
+                office.onLine.remove(this);
                 break;
             }
         }
