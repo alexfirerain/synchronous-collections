@@ -3,18 +3,26 @@ import java.util.concurrent.RecursiveTask;
 import java.util.function.Function;
 
 public class ArraysSumTester extends Tester {
-    private final int[] dataSizes;
-    private final int arrValMin;
-    private final int arrValMax;
-    private final int repetitions;
-    private final StringBuilder report;
+    private final int[] dataSizes;      // размеры данных для серии тэстов
+    private final int arrValMin;        // нижнее значение для данных
+    private final int arrValMax;        // верхнее значение для данных
+    private final int repetitions;      // количество повторов каждого тэста
+    private final StringBuilder report; // построитель отчёта
 
+    @Override
+    protected void prepareData(int dataSize) {
+        Integer[] testDatum = ArrGenerator.generate(dataSize);
+    }
+
+    // конструктор: размеры данных, нижнее и верхнее значение данного, повторения
     public ArraysSumTester(int[] dataSizes, int arrValMin, int arrValMax, int repetitions) {
         this.dataSizes = dataSizes;
         this.arrValMin = arrValMin;
         this.arrValMax = arrValMax;
         this.repetitions = repetitions;
         report = new StringBuilder();
+
+        // описание отчёта
         report.append("Будет проведено сравнительное тестирование двух реализаций суммирования массива: в один поток и рекурсивное.\n")
                 .append("Будут сгенерированы массивы длиной: ");
         for (int i = 0; i < dataSizes.length; i++) {
@@ -30,19 +38,26 @@ public class ArraysSumTester extends Tester {
                         .formatted(repetitions));
     }
 
+    // запуск тэста: функция, данные, повторения
     public String executeSingleBatch(Function<Integer[], Long> operation, Integer[] data, int repetitions) {
-
+        // подготовка секундомера
         long overallTestsDuration = 0;
         long maxDuration = 0;
         long minDuration = Long.MAX_VALUE;
+        // держатель результата вычисления
         long sum = 0;
 
+        // повторы тэста
         for (int i = 0; i < repetitions; i++) {
 
+            // запуск секундомера
             long l = System.nanoTime();
+            // выполнение тэстируемой операции
             sum = operation.apply(data);
+            // остановка секундомера
             long duration = System.nanoTime() - l;
 
+            // вычисление статистики результатов
             if (duration > maxDuration) maxDuration = duration;
             if (duration < minDuration) minDuration = duration;
             overallTestsDuration += duration;
@@ -56,12 +71,17 @@ public class ArraysSumTester extends Tester {
                         nanoTimeFormatter(maxDuration));
     }
 
+    // запуск серии тэстов
     public void executeTesting() {
+        // для каждого из размеров данных
         for (int arrLength : dataSizes) {
+            // подготовить данные
             Integer[] testArray = ArrGenerator.generate(arrLength, arrValMin, arrValMax);
             report.append("----------Массив из %d элементов-------------\n".formatted(arrLength))
+                    // выполнение тэста на функции А
                     .append("\tОднопоточное суммирование:\n")
                     .append(executeSingleBatch(singleThreadSum, testArray, repetitions))
+                    // выполнение тэста на функции Б
                     .append("\tРекурсивное суммирование:\n")
                     .append(executeSingleBatch(recursiveSum, testArray, repetitions))
                     .append("\n");
@@ -69,6 +89,7 @@ public class ArraysSumTester extends Tester {
         System.out.println(report.toString());
     }
 
+    // тэстируемая функция А
     static Function<Integer[], Long> singleThreadSum = (Integer[] arr) -> {
         long sum = 0;
         for (int i : arr)
@@ -76,6 +97,7 @@ public class ArraysSumTester extends Tester {
         return sum;
     };
 
+    // тэстируемая функция Б
     static Function<Integer[], Long> recursiveSum = (Integer[] arr) ->
             new ForkJoinPool()
                     .invoke(new ParallelSum(arr, 0, arr.length - 1));

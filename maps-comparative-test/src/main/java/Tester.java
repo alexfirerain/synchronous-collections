@@ -1,5 +1,6 @@
 public abstract class Tester {
 
+    protected abstract void prepareData(int dataSize);
 
     static protected String nanoTimeFormatter(long duration) {
         if (duration < 10_000)

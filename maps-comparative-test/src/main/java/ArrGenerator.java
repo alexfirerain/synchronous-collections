@@ -1,3 +1,7 @@
+/**
+ *  Генератор целочисленного массива
+ */
+
 public class ArrGenerator {
 
     public static Integer[] generate(int length, int MIN, int MAX) {
