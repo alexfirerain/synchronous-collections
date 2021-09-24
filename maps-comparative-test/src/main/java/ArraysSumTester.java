@@ -9,13 +9,9 @@ public class ArraysSumTester extends Tester {
     private final int repetitions;      // количество повторов каждого тэста
     private final StringBuilder report; // построитель отчёта
 
-    @Override
-    protected void prepareData(int dataSize) {
-        Integer[] testDatum = ArrGenerator.generate(dataSize);
-    }
-
     // конструктор: размеры данных, нижнее и верхнее значение данного, повторения
     public ArraysSumTester(int[] dataSizes, int arrValMin, int arrValMax, int repetitions) {
+        super(dataSizes, arrValMin, arrValMax, repetitions);
         this.dataSizes = dataSizes;
         this.arrValMin = arrValMin;
         this.arrValMax = arrValMax;
@@ -72,6 +68,7 @@ public class ArraysSumTester extends Tester {
     }
 
     // запуск серии тэстов
+    @Override
     public void executeTesting() {
         // для каждого из размеров данных
         for (int arrLength : dataSizes) {
@@ -117,11 +114,18 @@ public class ArraysSumTester extends Tester {
 
         @Override
         protected Long compute() {
-            if (range == 0)
-                return (long) arr[beginning];
-            else if (range == 1)
-                return (long) (arr[beginning] + arr[beginning + 1]);
-            return splitAndCompute();
+//            if (range == 0)
+//                return (long) arr[beginning];
+//            else if (range == 1)
+//                return (long) (arr[beginning] + arr[beginning + 1]);
+//            return splitAndCompute();
+            if (range > arr.length / 4)
+                return splitAndCompute();
+            int s = 0;
+            for (int i = beginning; i <= ending; i++)
+                s += arr[i];
+            return (long) s;
+
         }
 
         private Long splitAndCompute() {
