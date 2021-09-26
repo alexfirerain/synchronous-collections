@@ -1,19 +1,20 @@
 public abstract class Tester {
 
+    final protected int[] dataSizes;      // размеры данных для серии тестов
+    final protected int arrValMin;        // нижнее значение для данных
+    final protected int arrValMax;        // верхнее значение для данных
+    final protected int repetitions;      // количество повторов каждого теста
+    final protected StringBuilder report; // построитель отчёта
+
     protected Tester(int[] dataSizes, int arrValMin, int arrValMax, int repetitions) {
         this.dataSizes = dataSizes;
         this.arrValMin = arrValMin;
         this.arrValMax = arrValMax;
         this.repetitions = repetitions;
-        report = new StringBuilder();
+        report = new StringBuilder("");
     }
 
-    abstract protected void executeTesting();
-    protected final int[] dataSizes;      // размеры данных для серии тэстов
-    protected final int arrValMin;        // нижнее значение для данных
-    protected final int arrValMax;        // верхнее значение для данных
-    protected final int repetitions;      // количество повторов каждого тэста
-    protected final StringBuilder report; // построитель отчёта
+    abstract protected void executeTesting() throws InterruptedException;
 
     static protected String nanoTimeFormatter(long duration) {
         if (duration < 10_000)

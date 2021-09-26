@@ -3,22 +3,30 @@ import java.util.concurrent.RecursiveTask;
 import java.util.function.Function;
 
 public class ArraysSumTester extends Tester {
-    private final int[] dataSizes;      // размеры данных для серии тестов
-    private final int arrValMin;        // нижнее значение для данных
-    private final int arrValMax;        // верхнее значение для данных
-    private final int repetitions;      // количество повторов каждого теста
-    private int fractality;      // степень фрактальности параллельных расчётов
-    private final StringBuilder report; // построитель отчёта
+    // тестируемая функция А
+    final private Function<Integer[], Long> singleThreadSum;
+    // тестируемая функция Б
+    final private Function<Integer[], Long> recursiveSum;
+    final int fractality;       // степень фрактальности параллельных расчётов, фактически поле не нужно
 
-    // конструктор: размеры данных, нижнее и верхнее значение данного, повторения
+    // конструктор: размеры данных, нижнее и верхнее значение, повторения, фрактальность
     public ArraysSumTester(int[] dataSizes, int arrValMin, int arrValMax, int repetitions, int fractality) {
-        super(dataSizes, arrValMin, arrValMax, repetitions);
-        this.dataSizes = dataSizes;
-        this.arrValMin = arrValMin;
-        this.arrValMax = arrValMax;
-        this.repetitions = repetitions;
+        super(dataSizes,
+                arrValMin,
+                arrValMax,
+                repetitions);
         this.fractality = fractality;
-        report = new StringBuilder();
+
+        singleThreadSum = (Integer[] arr) -> {
+            long sum = 0;
+            for (int i : arr)
+                sum += i;
+            return sum;
+        };
+
+        recursiveSum = (Integer[] arr) ->
+                new ForkJoinPool()
+                        .invoke(new ParallelSum(arr, 0, arr.length - 1, fractality));
 
         // описание отчёта
         report.append(("Будет проведено сравнительное тестирование двух реализаций суммирования массива:" +
@@ -37,6 +45,7 @@ public class ArraysSumTester extends Tester {
                         .formatted(repetitions));
     }
 
+    // на сколько фактически частей дихотомически фрактализуется массив
     private int actualThreads() {
         int actualThreads = 1;
         while (fractality > actualThreads)
@@ -76,8 +85,8 @@ public class ArraysSumTester extends Tester {
                         nanoTimeFormatter(minDuration),
                         nanoTimeFormatter(maxDuration));
     }
-    // запуск серии тестов
 
+    // запуск серии тестов
     @Override
     public void executeTesting() {
         // для каждого из размеров данных
@@ -95,18 +104,6 @@ public class ArraysSumTester extends Tester {
         }
         System.out.println(report.toString());
     }
-    // тестируемая функция А
-    final Function<Integer[], Long> singleThreadSum = (Integer[] arr) -> {
-        long sum = 0;
-        for (int i : arr)
-            sum += i;
-        return sum;
-    };
-
-    // тестируемая функция Б
-    final Function<Integer[], Long> recursiveSum = (Integer[] arr) ->
-            new ForkJoinPool()
-                    .invoke(new ParallelSum(arr, 0, arr.length - 1, fractality));
 
 
     static class ParallelSum extends RecursiveTask<Long> {
@@ -114,7 +111,7 @@ public class ArraysSumTester extends Tester {
         final int fractality;
         int beginning, ending, range;
 
-
+        //конструктор рекурсивной задачи
         public ParallelSum(Integer[] arr, int beginning, int ending, int fractality) {
             this.arr = arr;                 // обрабатываемый массив
             this.beginning = beginning;     

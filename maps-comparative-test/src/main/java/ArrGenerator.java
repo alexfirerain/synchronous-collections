@@ -1,3 +1,7 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 /**
  *  Генератор целочисленного массива
  */
@@ -19,6 +23,17 @@ public class ArrGenerator {
 
     public static Integer[] generate(int length) {
         return generate(length, 255);
+    }
+
+    public static Integer[] generateUnique(int length) {
+        List<Integer> list = new ArrayList<>(length);
+        Random rnd = new Random();
+        while (list.size() < length) {
+            int newRnd = rnd.nextInt(length);
+            if (list.contains(newRnd)) continue;        // это будет адски долго для больших массивов
+            list.add(newRnd);
+        }
+        return list.toArray(new Integer[0]);
     }
 }
 
