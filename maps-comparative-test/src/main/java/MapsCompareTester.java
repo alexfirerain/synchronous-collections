@@ -1,4 +1,5 @@
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class MapsCompareTester extends Tester {
 
@@ -33,4 +34,8 @@ public class MapsCompareTester extends Tester {
     private String executeSingleBatch(Map<Integer, Integer> map, int repetitions) {
         return null;
     }
+
+//    final Consumer<Map<Integer, Integer>> processor = (Map<Integer, Integer> m) -> {
+//
+//    }
 }

@@ -7,7 +7,7 @@ public class Main {
             100_000,
             1_000_000,
             10_000_000,
-//            100_000_000,
+            100_000_000,
 //            1_000_000_000
     };
 
@@ -18,7 +18,7 @@ public class Main {
                 Это может занять некоторое время, к тому же может кончиться память.
                 
                 """);
-        Tester arraysSumTester = new ArraysSumTester(DATA_SIZES, 0, 1023, 10);
+        Tester arraysSumTester = new ArraysSumTester(DATA_SIZES, 0, 255, 10, 11);
         arraysSumTester.executeTesting();
     }
 }

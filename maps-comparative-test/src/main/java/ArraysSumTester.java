@@ -3,30 +3,33 @@ import java.util.concurrent.RecursiveTask;
 import java.util.function.Function;
 
 public class ArraysSumTester extends Tester {
-    private final int[] dataSizes;      // размеры данных для серии тэстов
+    private final int[] dataSizes;      // размеры данных для серии тестов
     private final int arrValMin;        // нижнее значение для данных
     private final int arrValMax;        // верхнее значение для данных
-    private final int repetitions;      // количество повторов каждого тэста
+    private final int repetitions;      // количество повторов каждого теста
+    private int fractality;      // степень фрактальности параллельных расчётов
     private final StringBuilder report; // построитель отчёта
 
     // конструктор: размеры данных, нижнее и верхнее значение данного, повторения
-    public ArraysSumTester(int[] dataSizes, int arrValMin, int arrValMax, int repetitions) {
+    public ArraysSumTester(int[] dataSizes, int arrValMin, int arrValMax, int repetitions, int fractality) {
         super(dataSizes, arrValMin, arrValMax, repetitions);
         this.dataSizes = dataSizes;
         this.arrValMin = arrValMin;
         this.arrValMax = arrValMax;
         this.repetitions = repetitions;
+        this.fractality = fractality;
         report = new StringBuilder();
 
         // описание отчёта
-        report.append("Будет проведено сравнительное тестирование двух реализаций суммирования массива: в один поток и рекурсивное.\n")
+        report.append(("Будет проведено сравнительное тестирование двух реализаций суммирования массива:" +
+                        " в один поток и рекурсивное (до %d потоков).\n").formatted(actualThreads()))
                 .append("Будут сгенерированы массивы длиной: ");
         for (int i = 0; i < dataSizes.length; i++) {
-            report.append( dataSizes[i]);
+            report.append(dataSizes[i]);
 
             if (i == dataSizes.length - 1)         report.append("; ");
             else if (i == dataSizes.length - 2)    report.append(" и ");
-            else                                    report.append(", ");
+            else                                   report.append(", ");
         }
         report.append("заполнены они будут случайными целыми числами от %d до %d.\n"
                         .formatted(arrValMin, arrValMax))
@@ -34,7 +37,14 @@ public class ArraysSumTester extends Tester {
                         .formatted(repetitions));
     }
 
-    // запуск тэста: функция, данные, повторения
+    private int actualThreads() {
+        int actualThreads = 1;
+        while (fractality > actualThreads)
+            actualThreads *= 2;
+        return actualThreads;
+    }
+
+    // запуск теста: функция, данные, повторения
     public String executeSingleBatch(Function<Integer[], Long> operation, Integer[] data, int repetitions) {
         // подготовка секундомера
         long overallTestsDuration = 0;
@@ -43,12 +53,12 @@ public class ArraysSumTester extends Tester {
         // держатель результата вычисления
         long sum = 0;
 
-        // повторы тэста
+        // повторы теста
         for (int i = 0; i < repetitions; i++) {
 
             // запуск секундомера
             long l = System.nanoTime();
-            // выполнение тэстируемой операции
+            // выполнение тестируемой операции
             sum = operation.apply(data);
             // остановка секундомера
             long duration = System.nanoTime() - l;
@@ -66,8 +76,8 @@ public class ArraysSumTester extends Tester {
                         nanoTimeFormatter(minDuration),
                         nanoTimeFormatter(maxDuration));
     }
+    // запуск серии тестов
 
-    // запуск серии тэстов
     @Override
     public void executeTesting() {
         // для каждого из размеров данных
@@ -75,51 +85,47 @@ public class ArraysSumTester extends Tester {
             // подготовить данные
             Integer[] testArray = ArrGenerator.generate(arrLength, arrValMin, arrValMax);
             report.append("----------Массив из %d элементов-------------\n".formatted(arrLength))
-                    // выполнение тэста на функции А
+                    // выполнение теста на функции А
                     .append("\tОднопоточное суммирование:\n")
                     .append(executeSingleBatch(singleThreadSum, testArray, repetitions))
-                    // выполнение тэста на функции Б
-                    .append("\tРекурсивное суммирование:\n")
+                    // выполнение теста на функции Б
+                    .append("\tРекурсивное суммирование (%d потоков):\n".formatted(actualThreads()))
                     .append(executeSingleBatch(recursiveSum, testArray, repetitions))
                     .append("\n");
         }
         System.out.println(report.toString());
     }
-
-    // тэстируемая функция А
-    static Function<Integer[], Long> singleThreadSum = (Integer[] arr) -> {
+    // тестируемая функция А
+    final Function<Integer[], Long> singleThreadSum = (Integer[] arr) -> {
         long sum = 0;
         for (int i : arr)
             sum += i;
         return sum;
     };
 
-    // тэстируемая функция Б
-    static Function<Integer[], Long> recursiveSum = (Integer[] arr) ->
+    // тестируемая функция Б
+    final Function<Integer[], Long> recursiveSum = (Integer[] arr) ->
             new ForkJoinPool()
-                    .invoke(new ParallelSum(arr, 0, arr.length - 1));
+                    .invoke(new ParallelSum(arr, 0, arr.length - 1, fractality));
 
 
     static class ParallelSum extends RecursiveTask<Long> {
         Integer[] arr;
+        final int fractality;
         int beginning, ending, range;
 
 
-        public ParallelSum(Integer[] arr, int beginning, int ending) {
-            this.arr = arr;
-            this.beginning = beginning;
+        public ParallelSum(Integer[] arr, int beginning, int ending, int fractality) {
+            this.arr = arr;                 // обрабатываемый массив
+            this.beginning = beginning;     
             this.ending = ending;
+            this.fractality = fractality;   // на сколько можно разбивать
             range = ending - beginning;
         }
 
         @Override
         protected Long compute() {
-//            if (range == 0)
-//                return (long) arr[beginning];
-//            else if (range == 1)
-//                return (long) (arr[beginning] + arr[beginning + 1]);
-//            return splitAndCompute();
-            if (range > arr.length / 4)
+            if (range > arr.length / fractality)
                 return splitAndCompute();
             int s = 0;
             for (int i = beginning; i <= ending; i++)
@@ -130,8 +136,8 @@ public class ArraysSumTester extends Tester {
 
         private Long splitAndCompute() {
             int median = range / 2 + beginning;
-            ParallelSum semisum1 = new ParallelSum(arr, beginning, median);
-            ParallelSum semisum2 = new ParallelSum(arr, median + 1, ending);
+            ParallelSum semisum1 = new ParallelSum(arr, beginning, median, fractality );
+            ParallelSum semisum2 = new ParallelSum(arr, median + 1, ending, fractality );
             invokeAll(semisum1, semisum2);
             return semisum1.join() + semisum2.join();
         }
