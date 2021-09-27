@@ -11,7 +11,7 @@ public abstract class Tester {
         this.arrValMin = arrValMin;
         this.arrValMax = arrValMax;
         this.repetitions = repetitions;
-        report = new StringBuilder("");
+        report = new StringBuilder();
     }
 
     abstract protected void executeTesting() throws InterruptedException;

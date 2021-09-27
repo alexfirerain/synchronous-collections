@@ -4,7 +4,7 @@ import java.util.Date;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class Main {
-    public static final int NUMBER_OF_CALLS = 15;
+    public static final int NUMBER_OF_CALLS = 60;
     public static final int NUMBER_OF_OPERATORS = 3;
 
     public static void main(String[] args) throws InterruptedException {

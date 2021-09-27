@@ -98,7 +98,7 @@ public class ArraysSumTester extends Tester {
                     .append("\tОднопоточное суммирование:\n")
                     .append(executeSingleBatch(singleThreadSum, testArray, repetitions))
                     // выполнение теста на функции Б
-                    .append("\tРекурсивное суммирование (%d потоков):\n".formatted(actualThreads()))
+                    .append("\tРекурсивное суммирование (до %d потоков):\n".formatted(actualThreads()))
                     .append(executeSingleBatch(recursiveSum, testArray, repetitions))
                     .append("\n");
         }
