@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -25,15 +26,30 @@ public class ArrGenerator {
         return generate(length, 255);
     }
 
+//    public static Integer[] generateUniqueSlow(int length) {
+//        List<Integer> list = new ArrayList<>(length);
+//        Random rnd = new Random();
+//        while (list.size() < length) {
+//            int newRnd = rnd.nextInt(length);
+//            if (list.contains(newRnd)) continue;        // это будет адски долго для больших массивов
+//            list.add(newRnd);
+//        }
+//        return list.toArray(new Integer[0]);
+//    }
+
     public static Integer[] generateUnique(int length) {
-        List<Integer> list = new ArrayList<>(length);
-        Random rnd = new Random();
-        while (list.size() < length) {
-            int newRnd = rnd.nextInt(length);
-            if (list.contains(newRnd)) continue;        // это будет адски долго для больших массивов
-            list.add(newRnd);
+        Integer[] unique = new Integer[length];
+        Random randomPlace = new Random();
+        for (int i = 0; i < length; i++) {
+            int next = randomPlace.nextInt(length);
+            while (unique[next] != null) {
+                next++;
+                if (next == length) next = 0;
+            }
+            unique[next] = i;
         }
-        return list.toArray(new Integer[0]);
+        return unique;
     }
+
 }
 

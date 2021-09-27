@@ -45,18 +45,21 @@ public class MapsCompareTester extends Tester {
 
             // запуск секундомера
             long l = System.nanoTime();
+
             // выполнение тестируемой операции
                 // создание потоков
             List<Thread> threads = new ArrayList<>(threadsCount);
-            for (int t = 0; t < threadsCount; t++) {
+            for (int t = 0; t < threadsCount; t++)
                 threads.add(new Thread(new RandomAccess(map)));
-            }
+
                 // запуск потоков
             for (Thread t : threads)
                 t.start();
+
                 // ожидание выполнения
             for (Thread t : threads)
                 t.join();
+
             // остановка секундомера
             long duration = System.nanoTime() - l;
 
@@ -74,9 +77,6 @@ public class MapsCompareTester extends Tester {
                         nanoTimeFormatter(maxDuration));
     }
 
-//    final Consumer<Map<Integer, Integer>> processor = (Map<Integer, Integer> m, int threadsCount) -> {
-//
-//    }
 
     private HashMap<Integer, Integer> createRandomHashMap(int size) {
         Integer[] keys = ArrGenerator.generateUnique(size);
