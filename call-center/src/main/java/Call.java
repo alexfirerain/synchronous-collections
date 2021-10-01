@@ -3,11 +3,9 @@ import java.util.Date;
 import java.util.Objects;
 
 public class Call {
-//    private final TelephoneExchangeSimulator source;
     private final Date callDate;
 
     public Call() {
-//        this.source = source;
         callDate = new Date();
     }
 

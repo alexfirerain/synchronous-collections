@@ -1,27 +1,40 @@
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
+/**
+ * Класс для демонстрации работы Центра Звонков, также содержащий общие служебные функции для его работы.
+ */
 public class Main {
-    public static final int NUMBER_OF_CALLS = 60;
-    public static final int NUMBER_OF_OPERATORS = 3;
+    private static final int NUMBER_OF_CALLS = 60;
+    private static final int NUMBER_OF_OPERATORS = 3;
 
     public static void main(String[] args) throws InterruptedException {
         consoleReport();
         CallCenter callCenter = new CallCenter(NUMBER_OF_OPERATORS);
         callCenter.demo(NUMBER_OF_CALLS);
-        while (true)
-            if (!callCenter.running())
+        while (true) {
+            if (!callCenter.running()) {
                 break;
-        consoleReport(callCenter.threads.awaitTermination(5, SECONDS) ?
-                "Дождались завершения" : "Остановили по таймауту");
+            }
+        }
+        consoleReport(callCenter.waitAndShut());
         consoleReport("Центр Звонков завершил демонстрацию.");
     }
 
+    /**
+     * Генерирует случайную задержку в работе потока, симулирующую реальный ход времени при выполнении имитируемых задач.
+     * Задержка, с вероятностью 50%, имеет величину от <средняя> до <средняя / добротность>
+     * или, с вероятностью 50%, от <средняя> до <средняя * добротность>.
+     * @param meanValue среднее значение для вычисления задержки.
+     * @param qFactor   показатель добротности распределения.
+     */
     static void timePass(int meanValue, double qFactor) {
-        if (qFactor <= 0 || qFactor > meanValue) throw new IllegalArgumentException();
-        if (qFactor < 1) qFactor = 1 / qFactor;
+        if (qFactor <= 0 || qFactor > meanValue) {
+            throw new IllegalArgumentException();
+        }
+        if (qFactor < 1) {
+            qFactor = 1 / qFactor;
+        }
         double minValue = meanValue / qFactor;
         double maxValue = meanValue * qFactor;
         double scaleValue = Math.random();
@@ -35,6 +48,9 @@ public class Main {
         }
     }
 
+    /**
+     * Выводит в консоль шаблон-заголовок списка событий.
+     */
     static void consoleReport() {
         System.out.println( """
                 ================
@@ -42,6 +58,10 @@ public class Main {
                 ================""" );
     }
 
+    /**
+     * Выводит в консоль текущее время (минуты:секунды) и сообщение о событии.
+     * @param msg сообщение о событии.
+     */
     static void consoleReport(String msg) {
         System.out.println(
                 new SimpleDateFormat("mm:ss - ").format(new Date()) + msg
