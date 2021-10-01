@@ -53,12 +53,12 @@ public class Operator implements Runnable {
      * @param request обрабатываемый звонок.
      */
     private void processACall(Call request) {
-        Main.consoleReport(name + " принимает " + request + (
+        Main.consoleReport(this + " принимает " + request + (
                 office.queueLength() > 0 ?
                 " (ещё в очереди: " + office.queueLength() + ")" :
                 ""));
         Main.timePass(MEAN_TALK, Q_FACTOR_FOR_TALK);
-        Main.consoleReport(name + " завершает " + request);
+        Main.consoleReport(this + " завершает " + request);
     }
 
     @Override

@@ -45,16 +45,19 @@ public class MapsCompareTester extends Tester {
 
         // повторы теста
         for (int i = 0; i < repetitions; i++) {
-            // запуск секундомера
-            long l = System.nanoTime();
-            // выполнение тестируемой операции
+
                 // создание потоков
             List<Thread> threads = new ArrayList<>(threadsCount);
             for (int t = 0; t < threadsCount; t++) threads.add(new Thread(new RandomAccess(map, accessOrder)));
+            // запуск секундомера
+            long l = System.nanoTime();
+
+            // выполнение тестируемой операции
                 // запуск потоков
             for (Thread t : threads) t.start();
                 // ожидание выполнения
             for (Thread t : threads) t.join();
+
             // остановка секундомера
             long duration = System.nanoTime() - l;
             // вычисление статистики результатов

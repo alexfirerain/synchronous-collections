@@ -1,12 +1,8 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 /**
  *  Генератор целочисленного массива
  */
-
 public class ArrGenerator {
 
     public static Integer[] generate(int length, int MIN, int MAX) {

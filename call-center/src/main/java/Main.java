@@ -29,7 +29,7 @@ public class Main {
      * @param qFactor   показатель добротности распределения.
      */
     static void timePass(int meanValue, double qFactor) {
-        if (qFactor <= 0 || qFactor > meanValue) {
+        if (meanValue <= 0 || qFactor * meanValue < 1 || qFactor > meanValue) {
             throw new IllegalArgumentException();
         }
         if (qFactor < 1) {

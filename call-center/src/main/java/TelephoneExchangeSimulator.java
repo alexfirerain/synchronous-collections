@@ -29,6 +29,7 @@ public class TelephoneExchangeSimulator implements Runnable {
     public void run() {
         if (target == null) {
             System.out.println("АТС: не определён получатель звонков!");
+            isOn = false;
             return;
         }
         int calls = 0;
